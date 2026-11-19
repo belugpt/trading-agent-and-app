@@ -1,9 +1,9 @@
 # SME Trading Operations
 
-Private hosted operations workspace, MT5 indicator/EA prototypes and historical strategy research.
+Private hosted operations app, MT5 indicator/EA prototypes and Python research engine.
 
-Start with [the detailed product specification](platform/PRODUCT_SPECIFICATION.md), [app build instructions](platform/README.md), and [terminal installation](mt5/AGENT_SETUP.md).
+Read [the detailed product specification](platform/PRODUCT_SPECIFICATION.md), [app setup](platform/README.md), and [MT5 installation](mt5/AGENT_SETUP.md).
 
-The cloud provides journaling, risk estimates, telemetry and research. It does not execute trades. MT5 execution defaults off; compilation and demo validation remain required. Historical research used crossover stops; current swing-origin stops and M5+ operation require separate validation.
+Build: `cd platform`, then `npm run build`, `npm run validate`, `npm test` (Node 24). Research tests: `python -m unittest discover -s tests`.
 
-Source is public; deployment remains owner-private. Never commit broker passwords, service tokens, live account records or market-data archives.
+Cloud execution is disabled. Terminal compilation and demo validation remain pending. Current swing-stop and M5+ operation do not inherit historical crossover-stop H1 results. Source is public; hosting remains owner-private. Do not commit credentials or broker records.

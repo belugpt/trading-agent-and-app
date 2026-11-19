@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env*
+!.env.example
+data/
+output/
+platform/dist/
+platform/site.tar.gz
+node_modules/
+*.ex5
+*.set
