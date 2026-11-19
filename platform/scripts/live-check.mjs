@@ -1,4 +1,4 @@
-let input='';for await(const chunk of process.stdin)input+=chunk;
+const input=await new Promise(resolve=>{let value='';if(process.stdin.isTTY)process.stdin.setRawMode(true);process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{value+=chunk;if(/[\r\n]/.test(value)){if(process.stdin.isTTY)process.stdin.setRawMode(false);process.stdin.pause();resolve(value);}});process.stdin.resume();console.log('Ready for private check input (hidden).');});
 const {origin,token}=JSON.parse(input);
 const headers={'OAI-Sites-Authorization':'Bearer '+token};
 for(const path of ['/health','/','/specification']){

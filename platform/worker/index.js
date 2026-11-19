@@ -21,7 +21,11 @@ async function record(env,kind,payload,id=crypto.randomUUID()){
 }
 export default {async fetch(request,env){try{
  const u=new URL(request.url),path=u.pathname;
- if(path==='/health')return json({status:'ok',version:'0.1.0',execution:'disabled',database:!!env.DB});
+ if(path==='/health'){
+   if(!env.DB)throw fail('Database unavailable',503);
+   await env.DB.prepare('SELECT id FROM records LIMIT 1').all();
+   return json({status:'ok',version:'0.1.0',execution:'disabled',database:true});
+ }
  const user=request.headers.get('oai-authenticated-user-id');
  // Owner-private Sites dispatch authenticates service callers before this handler.
  // Bridge is append-only; it cannot issue trade instructions or read records.

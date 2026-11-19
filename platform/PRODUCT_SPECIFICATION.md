@@ -87,7 +87,7 @@ No broker passwords, access tokens or raw account login IDs are required in reco
 | Method and route | Access | Behavior |
 |---|---|---|
 | GET / | Private Site | HTML workspace |
-| GET /health | Private Site boundary | Version, execution-disabled state and DB binding availability (not full DB connectivity test) |
+| GET /health | Private Site boundary | Version, execution-disabled state and actual records-table read probe |
 | GET /api/state | Browser identity | Latest records and bundled historical research |
 | POST /api/journal | Browser identity + same-origin | Validate and append manual record |
 | POST /api/size | Browser identity + same-origin | Pure risk estimate; no database mutation |
