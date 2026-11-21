@@ -2,6 +2,10 @@
 
 Version: 0.1.0 | Date: 19 November 2026 | Owner: Charles Nwachebelu / belugpt
 
+### 20 November update
+
+Updated swing-origin stop research is now included for all 29 markets on H1, with per-market equity curves and a full report at /updated-report. It uses the existing research source and inferred tick sizes, not verified FBS broker data or costs. The P&L tab separates backtest equity, reported terminal equity and manually recorded cumulative realized outcomes. Terminal equity changes are not deposit-adjusted trading P&L. The connection guide uses the owner's specified FBS-REAL server. Account type and contract specifications remain unverified. M5/higher-timeframe backtests are not claimed from H1 data.
+
 ## Product outcome
 
 Give the owner one private workspace to inspect strategy evidence, calculate risk, journal decisions and monitor MT5. Keep broker execution in the terminal. Every displayed number must have a source, strategy version and period; never label sample or historical data as live.

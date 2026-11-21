@@ -50,6 +50,7 @@ export default {async fetch(request,env){try{
    const {results}=await env.DB.prepare('SELECT id,kind,payload,created_at FROM records ORDER BY created_at DESC LIMIT 300').all();
    return json({records:results.map(r=>({...r,payload:JSON.parse(r.payload)})),execution:'disabled',research:RESEARCH});
  }
+ if(path==='/updated-report'&&request.method==='GET')return new Response(REPORT,{headers:{'content-type':'text/plain; charset=utf-8'}});
  if(path==='/specification'&&request.method==='GET')return new Response(SPEC,{headers:{'content-type':'text/plain; charset=utf-8','content-disposition':'inline; filename=PRODUCT_SPECIFICATION.md'}});
  if(path!=='/'||request.method!=='GET')return json({error:'Not found'},404);
  return new Response(HTML,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','content-security-policy':"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"}});
