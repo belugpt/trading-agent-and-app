@@ -6,6 +6,8 @@ Private hosted research and operations workspace. Start with [PRODUCT_SPECIFICAT
 
 Requires Node 24 (tests use built-in node:sqlite). No dependency installation.
 
+The public source contains `research.json.gz`, a compressed historical-data snapshot read by the build with Node's built-in zlib. Local research tools regenerate this snapshot; no broker credentials or runtime journal records are included. The current release includes confirmed-alignment M15/H1/H4 comparisons, chronological trade-management profiles, and the cleanly compiled MT5 package. Profiles are research evidence, not automatically applied EA settings.
+
 ```sh
 npm run build
 npm run validate

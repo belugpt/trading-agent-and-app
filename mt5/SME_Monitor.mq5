@@ -1,5 +1,5 @@
 #property strict
-#property version "0.10"
+#property version "1.00"
 input string SiteOrigin="";
 input string ServiceToken="";
 input string AccountAlias="demo-primary";

@@ -24,7 +24,7 @@ export default {async fetch(request,env){try{
  if(path==='/health'){
    if(!env.DB)throw fail('Database unavailable',503);
    await env.DB.prepare('SELECT id FROM records LIMIT 1').all();
-   return json({status:'ok',version:'0.1.0',execution:'disabled',database:true});
+   return json({status:'ok',version:'0.2.0',execution:'disabled',database:true});
  }
  const user=request.headers.get('oai-authenticated-user-id');
  // Owner-private Sites dispatch authenticates service callers before this handler.
@@ -50,6 +50,9 @@ export default {async fetch(request,env){try{
    const {results}=await env.DB.prepare('SELECT id,kind,payload,created_at FROM records ORDER BY created_at DESC LIMIT 300').all();
    return json({records:results.map(r=>({...r,payload:JSON.parse(r.payload)})),execution:'disabled',research:RESEARCH});
  }
+ if(path==='/management-report'&&request.method==='GET')return new Response(MANAGEMENT,{headers:{'content-type':'text/plain; charset=utf-8'}});
+ if(path==='/m15-report'&&request.method==='GET')return new Response(M15REPORT,{headers:{'content-type':'text/plain; charset=utf-8'}});
+ if(path==='/downloads/SME_MT5_Package.zip'&&request.method==='GET')return new Response(Uint8Array.from(atob(MT5PACKAGE.trim()),c=>c.charCodeAt(0)),{headers:{'content-type':'application/zip','content-disposition':'attachment; filename=SME_MT5_Package.zip'}});
  if(path==='/h4-report'&&request.method==='GET')return new Response(H4REPORT,{headers:{'content-type':'text/plain; charset=utf-8'}});
  if(path==='/updated-report'&&request.method==='GET')return new Response(REPORT,{headers:{'content-type':'text/plain; charset=utf-8'}});
  if(path==='/specification'&&request.method==='GET')return new Response(SPEC,{headers:{'content-type':'text/plain; charset=utf-8','content-disposition':'inline; filename=PRODUCT_SPECIFICATION.md'}});

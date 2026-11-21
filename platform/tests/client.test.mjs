@@ -1,6 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
 const html=readFileSync('web/index.html','utf8'),script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 test('client script parses',()=>assert.ok(new vm.Script(script)));
+test('management and mandatory-alignment choices are visible',()=>{for(const id of ['management','management-profiles','behaviour-table','pnl-alignment'])assert.ok(html.includes('id="'+id+'"'));assert.ok(html.includes('swingM15Aligned'));assert.ok(html.includes('/downloads/SME_MT5_Package.zip'));});
 test('H4 research and chart selection are available',()=>{assert.ok(html.includes('value="swingH4"'));assert.ok(html.includes('id="pnl-timeframe"'));assert.ok(html.includes('/h4-report'));});
 test('P&L sources and updated report are separate',()=>{for(const id of ['pnl','pnl-chart','pnl-source','pnl-market','swing-report'])assert.ok(html.includes('id="'+id+'"'));assert.ok(html.includes('FBS-REAL'));assert.ok(html.includes('not deposit-adjusted'));});
 test('every navigation page and critical control exists',()=>{for(const id of ['overview','setups','risk','journal','research','connect','spec','size-form','journal-form','refresh','research-table','event-kind'])assert.ok(html.includes('id="'+id+'"'),id);});

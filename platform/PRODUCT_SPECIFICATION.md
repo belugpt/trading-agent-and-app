@@ -1,5 +1,15 @@
 # SME Trading Operations — Product specification sheet
 
+## Confirmed-alignment release — 21 November 2026
+
+Compilation gate update: indicator, EA and monitor have now compiled with zero errors and warnings in local MetaEditor. Download includes .ex5 files, source, the shared alignment include and compilation hashes. Chart inspection, broker/demo execution and live installation remain unverified; no trading was activated.
+
+MT5 v1.30 forbids limits unless the latest CLOSED lower and higher candles agree on SMA126/252 OPEN ordering. M15 checks H1, H1 checks H4, H4 checks daily. Equality or unavailable history blocks new orders. Pending orders are rechecked before a fill and cancelled on loss of confirmation while the terminal is running and execution is enabled. This is a directional confirmation filter, not a guarantee against spikes. Install SME_Alignment.mqh in MQL5/Include and recompile both indicator and EA. MetaEditor and demo checks remain pending.
+
+The expanded research uses genuine M15 data, H1 and H4, with a separate aligned/unfiltered comparison. All adaptive candidate profiles require closed confirmation; smaller targets, partial profit-taking, 2R runners and ATR3 runners are tested retrospectively. No averaging down or additional entries to rescue losses are introduced. Session proxies respect UK/US daylight-saving rules. Post-entry movement tables use complete-bar lower bounds, excluding ambiguous fill/exit extrema. Frozen forward recipes are learned on earlier data with a 24-hour embargo, six-year lookback and two-year tests; cash is used when no training policy qualifies. No fitted exit profile is automatically deployed to the EA.
+
+Research prices and tick/cost estimates remain distinct from FBS-REAL broker validation. UTC daily partial/weekend bars can differ from FBS server daily candles. The new Trade management view, M15 report and downloadable MT5 package clearly separate research from execution. P&L defaults to confirmed alignment with M15/H1/H4 choices; unfiltered views are labeled historical comparisons.
+
 Version: 0.1.0 | Date: 19 November 2026 | Owner: Charles Nwachebelu / belugpt
 
 ### 20 November update

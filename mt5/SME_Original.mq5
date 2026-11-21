@@ -1,5 +1,6 @@
 #property copyright "SME research"
-#property version "1.20"
+#property version "1.30"
+#include <SME_Alignment.mqh>
 #property indicator_chart_window
 #property indicator_buffers 6
 #property indicator_plots 2
@@ -24,6 +25,8 @@ double Fast[],Slow[];
 double Signal[],EntrySignal[],StopSignal[],TargetSignal[];
 datetime lastBar=0,lastAlert=0;
 string prefix;
+int HigherFast=INVALID_HANDLE,HigherSlow=INVALID_HANDLE;
+ENUM_TIMEFRAMES HigherTF;
 
 void Label(string id,datetime stamp,double price,string text,color col,bool above=true)
 {
@@ -74,6 +77,10 @@ int OnInit()
       return INIT_PARAMETERS_INCORRECT;
    if(PeriodSeconds(_Period)<300) { Print("SME requires M5 or higher."); return INIT_PARAMETERS_INCORRECT; }
    prefix=ObjectTag+"_";
+   HigherTF=SMEHigherTimeframe(_Period);
+   HigherFast=iMA(_Symbol,HigherTF,FastPeriod,0,MODE_SMA,PRICE_OPEN);
+   HigherSlow=iMA(_Symbol,HigherTF,SlowPeriod,0,MODE_SMA,PRICE_OPEN);
+   if(HigherFast==INVALID_HANDLE || HigherSlow==INVALID_HANDLE) return INIT_FAILED;
    SetIndexBuffer(0,Fast,INDICATOR_DATA); SetIndexBuffer(1,Slow,INDICATOR_DATA);
    SetIndexBuffer(2,Signal,INDICATOR_DATA); SetIndexBuffer(3,EntrySignal,INDICATOR_DATA);
    SetIndexBuffer(4,StopSignal,INDICATOR_DATA); SetIndexBuffer(5,TargetSignal,INDICATOR_DATA);
@@ -87,13 +94,14 @@ int OnInit()
    IndicatorSetString(INDICATOR_SHORTNAME,"SME Original SMA OPEN");
    return INIT_SUCCEEDED;
 }
-void OnDeinit(const int reason) { ObjectsDeleteAll(0,prefix); Comment(""); }
+void OnDeinit(const int reason) { if(HigherFast!=INVALID_HANDLE)IndicatorRelease(HigherFast);if(HigherSlow!=INVALID_HANDLE)IndicatorRelease(HigherSlow);ObjectsDeleteAll(0,prefix); Comment(""); }
 
 int OnCalculate(const int total,const int calculated,const datetime &time[],
                 const double &open[],const double &high[],const double &low[],
                 const double &close[],const long &tick_volume[],const long &volume[],const int &spread[])
 {
    if(total<SlowPeriod+2) return 0;
+   if(BarsCalculated(HigherSlow)<SlowPeriod+2) return 0;
    ArraySetAsSeries(time,false); ArraySetAsSeries(open,false);
    ArraySetAsSeries(high,false); ArraySetAsSeries(low,false); ArraySetAsSeries(close,false);
    // SMA values include today's bar OPEN, which is known at the bar's start.
@@ -140,6 +148,8 @@ int OnCalculate(const int total,const int calculated,const datetime &time[],
          continue;
       }
       if(state==0) continue;
+      if(state==5 && (i<1 || (Fast[i-1]>Slow[i-1]?1:Fast[i-1]<Slow[i-1]?-1:0)!=d || SMEConfirmedSide(HigherFast,HigherSlow,HigherTF,time[i])!=d))
+      { state=0;status="Pending cancelled: closed-candle SMA alignment unconfirmed";continue; }
       double extreme=d==1?high[i]:low[i],opposite=d==1?low[i]:high[i];
       string key=IntegerToString(serial)+"_";
       if(state==1 && d*(extreme-previous)>0)
@@ -198,6 +208,8 @@ int OnCalculate(const int total,const int calculated,const datetime &time[],
             Label(key+"7",time[i+1],close[i],"7 RETRACEMENT CONFIRMED",clrWhite,d==1);
             if(d*(entry-stop)<=0 || d*(close[i]-entry)<=0)
             { state=0; status="Setup cancelled: invalid stop or midpoint already passed"; continue; }
+            if((Fast[i]>Slow[i]?1:Fast[i]<Slow[i]?-1:0)!=d || SMEConfirmedSide(HigherFast,HigherSlow,HigherTF,time[i+1])!=d)
+            { state=0;status="No limit: closed-candle higher timeframe SMA alignment unconfirmed";continue; }
             order=i; state=5;
             Signal[i+1]=d; EntrySignal[i+1]=entry;
             StopSignal[i+1]=stop; TargetSignal[i+1]=target;
@@ -224,6 +236,8 @@ int OnCalculate(const int total,const int calculated,const datetime &time[],
    int current=Fast[total-1]>Slow[total-1]?1:Fast[total-1]<Slow[total-1]?-1:0;
    if(state==5 && current!=0 && side!=0 && current!=side)
       status="Pending cancelled by current-bar opposite crossover";
+   if(state==5 && SMEConfirmedSide(HigherFast,HigherSlow,HigherTF,time[total-1])!=d)
+      status="Pending cancelled: closed higher-timeframe SMA alignment lost";
    Comment("SME Original | ",EnumToString(_Period)," | SMA ",FastPeriod,"/",SlowPeriod," OPEN\n",
            "1 Cross candle   |   2 Prior high/low   |   3 Post-cross high/low\n",
            "4 Swing origin   |   5 First breakout   |   6 Final endpoint\n",

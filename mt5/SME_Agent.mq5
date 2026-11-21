@@ -1,4 +1,5 @@
-#property version "1.20"
+#property version "1.30"
+#include <SME_Alignment.mqh>
 #property strict
 #property tester_indicator "SMAStrat.ex5"
 #include <Trade/Trade.mqh>
@@ -18,6 +19,8 @@ CTrade trade;
 int indicator=INVALID_HANDLE;
 datetime processed=0;
 int lastSide=0;
+int HigherFast=INVALID_HANDLE,HigherSlow=INVALID_HANDLE,LowerFast=INVALID_HANDLE,LowerSlow=INVALID_HANDLE;
+ENUM_TIMEFRAMES HigherTF;
 
 bool Read(int buffer,int shift,double &value)
 {
@@ -46,7 +49,7 @@ void CancelOpposite(int side)
       ulong ticket=OrderGetTicket(i);
       if(ticket==0 || OrderGetString(ORDER_SYMBOL)!=_Symbol || (ulong)OrderGetInteger(ORDER_MAGIC)!=MagicNumber) continue;
       ENUM_ORDER_TYPE type=(ENUM_ORDER_TYPE)OrderGetInteger(ORDER_TYPE);
-      if((side==1 && type==ORDER_TYPE_SELL_LIMIT) || (side==-1 && type==ORDER_TYPE_BUY_LIMIT))
+      if((side==0 && (type==ORDER_TYPE_BUY_LIMIT || type==ORDER_TYPE_SELL_LIMIT)) || (side==1 && type==ORDER_TYPE_SELL_LIMIT) || (side==-1 && type==ORDER_TYPE_BUY_LIMIT))
       {
          bool ok=trade.OrderDelete(ticket);
          Notify(StringFormat("SME cancellation #%I64u: %s / %s",ticket,ok?"request sent":"failed",trade.ResultRetcodeDescription()));
@@ -58,12 +61,16 @@ int OnInit()
    if(PeriodSeconds(_Period)<300 || RiskPercent<=0 || RiskPercent>100 || CostReservePercent<0 || StopBufferTicks<1) return INIT_PARAMETERS_INCORRECT;
    indicator=iCustom(_Symbol,_Period,IndicatorName,FastPeriod,SlowPeriod,StructureLookback,RetracementPercent,false,100,3,10,"SME_Agent",StopBufferTicks);
    if(indicator==INVALID_HANDLE) { Print("Compile SMAStrat.mq5 in MQL5/Indicators first. Error ",GetLastError()); return INIT_FAILED; }
+   HigherTF=SMEHigherTimeframe(_Period);
+   HigherFast=iMA(_Symbol,HigherTF,FastPeriod,0,MODE_SMA,PRICE_OPEN);HigherSlow=iMA(_Symbol,HigherTF,SlowPeriod,0,MODE_SMA,PRICE_OPEN);
+   LowerFast=iMA(_Symbol,_Period,FastPeriod,0,MODE_SMA,PRICE_OPEN);LowerSlow=iMA(_Symbol,_Period,SlowPeriod,0,MODE_SMA,PRICE_OPEN);
+   if(HigherFast==INVALID_HANDLE || HigherSlow==INVALID_HANDLE || LowerFast==INVALID_HANDLE || LowerSlow==INVALID_HANDLE) return INIT_FAILED;
    trade.SetExpertMagicNumber(MagicNumber); trade.SetTypeFillingBySymbol(_Symbol);
    // Skip setup execution on attach/restart; wait for the next new candle.
    processed=iTime(_Symbol,_Period,0);
    return INIT_SUCCEEDED;
 }
-void OnDeinit(const int reason) { if(indicator!=INVALID_HANDLE) IndicatorRelease(indicator); }
+void OnDeinit(const int reason) { if(indicator!=INVALID_HANDLE) IndicatorRelease(indicator);if(HigherFast!=INVALID_HANDLE)IndicatorRelease(HigherFast);if(HigherSlow!=INVALID_HANDLE)IndicatorRelease(HigherSlow);if(LowerFast!=INVALID_HANDLE)IndicatorRelease(LowerFast);if(LowerSlow!=INVALID_HANDLE)IndicatorRelease(LowerSlow); }
 void OnTradeTransaction(const MqlTradeTransaction &transaction,const MqlTradeRequest &request,const MqlTradeResult &result)
 {
    if(transaction.type!=TRADE_TRANSACTION_DEAL_ADD || !HistoryDealSelect(transaction.deal)) return;
@@ -75,6 +82,10 @@ void OnTradeTransaction(const MqlTradeTransaction &transaction,const MqlTradeReq
 void OnTick()
 {
    datetime bar=iTime(_Symbol,_Period,0);
+   int higher=SMEConfirmedSide(HigherFast,HigherSlow,HigherTF,TimeCurrent());
+   int lower=SMEConfirmedSide(LowerFast,LowerSlow,_Period,TimeCurrent());
+   int confirmed=higher!=0 && higher==lower?higher:0;
+   CancelOpposite(confirmed);
    double fast,slow;
    if(!Read(0,0,fast) || !Read(1,0,slow)) return;
    int side=fast>slow?1:fast<slow?-1:0;
@@ -86,6 +97,7 @@ void OnTick()
    processed=bar;
    int d=(int)direction;
    if(d!=1 && d!=-1) return;
+   if(confirmed!=d) { Notify("SME: no limit submitted; closed-candle SMA alignment is unconfirmed.");return; }
    if(side!=0 && side!=d) { Notify("SME setup invalidated by opposite open-price crossover."); return; }
    double tick=SymbolInfoDouble(_Symbol,SYMBOL_TRADE_TICK_SIZE);
    if(tick<=0) return;

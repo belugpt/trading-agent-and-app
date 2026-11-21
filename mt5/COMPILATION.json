@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "program": "SMAStrat",
+      "errors": 0,
+      "warnings": 0,
+      "source_sha256": "cc2109b8b7316f6c5350fbb6811868a2992919d6b0b7e7aa0d5d61a4cfa3cd91",
+      "binary_sha256": "312f7b44e037d3fc1d0f006e21b3fe42170dce82c26ad7c4ec0eb2a648238f8d"
+    },
+    {
+      "program": "SME_Agent",
+      "errors": 0,
+      "warnings": 0,
+      "source_sha256": "629d6049b671cb891a314309cf89b2f93b73180db81e44bb086ddce65a8860fc",
+      "binary_sha256": "8657f4ba29321086cbeaaa6393577f79b3c10155f529c05acbd50e70aa9fbd6f"
+    },
+    {
+      "program": "SME_Monitor",
+      "errors": 0,
+      "warnings": 0,
+      "source_sha256": "fe6e9fad9650436baa45f5d9d0fd540b5dd9bcc9b690f0bdaad4a19f2dbd9ac0",
+      "binary_sha256": "2da32bd8ef3b43dfec417f9955241e05f6d3eb6656b727c6252a45a267841071"
+    }
+  ],
+  "terminal_execution_verified": false,
+  "live_installation": false
+}
