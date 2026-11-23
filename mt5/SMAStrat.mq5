@@ -1,5 +1,6 @@
 #property copyright "SME research"
-#property version "1.30"
+#property version "1.40"
+#include <SME_Alerts.mqh>
 #include <SME_Alignment.mqh>
 #property indicator_chart_window
 #property indicator_buffers 6
@@ -15,12 +16,16 @@ input int FastPeriod=126;
 input int SlowPeriod=252;
 input int StructureLookback=50;
 input double RetracementPercent=0.1;
-input bool EnableAlerts=false;
+input bool EnableAlerts=true;
 input int LevelBars=100;
 input int LineWidth=3;
 input int LabelSize=10;
 input string ObjectTag="SME_Original";
 input int StopBufferTicks=1;
+input bool CrossoverAlerts=true;
+input bool SetupAlerts=true;
+input bool PushAlerts=false;
+input bool AppAlerts=true;
 double Fast[],Slow[];
 double Signal[],EntrySignal[],StopSignal[],TargetSignal[];
 datetime lastBar=0,lastAlert=0;
@@ -145,6 +150,8 @@ int OnCalculate(const int total,const int calculated,const datetime &time[],
          Label(key+"2",time[priorIndex],previous,"#"+IntegerToString(serial)+(d==1?" 2 PRIOR HIGH":" 2 PRIOR LOW"),clrGold,d==1);
          Arrow("cross_"+IntegerToString(serial),time[i],stop,d==1?233:234,clrGray);
          status="Waiting for post-cross structure";
+         if(calculated>0 && i==total-2 && CrossoverAlerts)
+            SMEAlertEvent("crossover",time[i+1],d,_Symbol+" "+EnumToString(_Period)+(d==1?" bullish":" bearish")+" closed-candle SMA crossover (not an entry setup)",EnableAlerts,PushAlerts,AppAlerts);
          continue;
       }
       if(state==0) continue;
@@ -221,8 +228,8 @@ int OnCalculate(const int total,const int calculated,const datetime &time[],
             Level("target_"+id,known,until,target,clrLimeGreen,"#"+id+" 10 TARGET -200");
             Arrow("signal_"+id,known,entry,d==1?241:242,d==1?clrLimeGreen:clrTomato);
             status="Pending 50% limit";
-            if(EnableAlerts && calculated>0 && i==total-2 && known>lastAlert)
-            { Alert(_Symbol," ",EnumToString(_Period)," SME ",d==1?"BUY LIMIT":"SELL LIMIT"," at ",DoubleToString(entry,_Digits)); lastAlert=known; }
+            if(SetupAlerts && calculated>0 && i==total-2 && known>lastAlert)
+            { SMEAlertEvent("setup",known,d,_Symbol+" "+EnumToString(_Period)+(d==1?" confirmed BUY LIMIT":" confirmed SELL LIMIT")+" entry "+DoubleToString(entry,_Digits)+" SL "+DoubleToString(stop,_Digits)+" TP "+DoubleToString(target,_Digits),EnableAlerts,PushAlerts,AppAlerts); lastAlert=known; }
          }
       }
       else if(state==5 && i>order)

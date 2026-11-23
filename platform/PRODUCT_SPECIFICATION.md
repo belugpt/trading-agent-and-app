@@ -1,5 +1,9 @@
 # SME Trading Operations — Product specification sheet
 
+## Alert release — 23 November 2026
+
+Indicator and EA offer separate closed-candle crossover and confirmed-setup alerts, with popup/push controls and optional app forwarding. Crossovers never authorize entry. The internal EA indicator disables its own alerts to avoid duplication; per-channel terminal globals suppress duplicate announcements from a separately attached indicator. The indicator writes to a terminal-local file queue rather than calling WebRequest, which indicators cannot use. A single configured SME_Monitor drains the queue, adds private service identity and retries failed deliveries. Files are deleted only after a successful JSON acknowledgment. Browser Alert inbox fetches the latest 300 setup/crossover records separately from heartbeats, with per-device read IDs, 15-second refresh and in-app toast for new arrivals. Background browser push is not implemented; MT5 phone push requires MetaQuotes configuration and obeys platform limits. Initial chart attachment does not replay historical signals. Compile checks do not verify real notification delivery; terminal/broker execution remains unverified.
+
 ## Confirmed-alignment release — 21 November 2026
 
 Compilation gate update: indicator, EA and monitor have now compiled with zero errors and warnings in local MetaEditor. Download includes .ex5 files, source, the shared alignment include and compilation hashes. Chart inspection, broker/demo execution and live installation remain unverified; no trading was activated.

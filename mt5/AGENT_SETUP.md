@@ -1,5 +1,9 @@
 # Multi-timeframe indicator and EA
 
+## Version 1.40 alerts
+
+Install BOTH SME_Alignment.mqh and SME_Alerts.mqh in MQL5/Include when rebuilding. CrossoverAlerts and SetupAlerts control separate event types; crossover alerts confirm the closed candle but are not entry authorization. Indicator EnableAlerts controls popups, PushAlerts controls phone push; EA uses PopupAlerts and PushNotifications. AppAlerts writes a non-secret event file in this terminal's MQL5/Files/SMEAlerts directory. No historical alerts are emitted on initial attachment. Persistent terminal global variables suppress duplicate indicator/EA events. Use one configured SME_Monitor per terminal to drain this shared queue; it can forward signals from all charts in that terminal. The monitor retries undelivered files on its polling timer and deletes only after HTTP success. The server deduplicates event IDs. Keep TerminalId stable; changing it can create a new server identity for a retry. Disk write errors and push failures are logged; delivery is not guaranteed. Do not run duplicate monitor instances against the same queue. MT5 push requires a configured MetaQuotes ID and is subject to platform limits. WebRequest is not available in Strategy Tester. App toasts operate while the dashboard is open; the inbox persists alerts received while closed. There is no browser background-push service.
+
 ## Version 1.30: mandatory confirmed alignment
 
 Compilation update: workspace SMAStrat, SME_Agent and SME_Monitor were compiled in the installed MetaEditor with zero errors and zero warnings. The package includes their .ex5 binaries and COMPILATION.json hashes. This does not verify chart behavior, broker constraints or demo execution; nothing was installed into the terminal or activated. Binary copies go in their corresponding Indicators/Experts folders; SME_Alignment.mqh goes in Include if rebuilding source.

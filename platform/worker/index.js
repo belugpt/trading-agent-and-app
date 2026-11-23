@@ -31,7 +31,7 @@ export default {async fetch(request,env){try{
  // Bridge is append-only; it cannot issue trade instructions or read records.
  if(path==='/api/bridge'&&request.method==='POST'){
    const b=await body(request),kind=text(b.kind,30);
-   if(!['heartbeat','setup','deal','error'].includes(kind))throw fail('Unsupported event kind');
+   if(!['heartbeat','setup','crossover','deal','error'].includes(kind))throw fail('Unsupported event kind');
    const id=text(b.eventId,180),account=text(b.account,80),terminal=text(b.terminal,80);
    const payload={account,terminal,symbol:b.symbol?text(b.symbol,32):'',message:b.message?text(b.message,2000):'',strategyVersion:b.strategyVersion?text(b.strategyVersion,80):'unknown',eventTime:b.eventTime?text(b.eventTime,50):null};
    if(kind==='heartbeat'){payload.equity=number(b.equity,0,1e12);payload.balance=number(b.balance,0,1e12);payload.mode=['demo','live'].includes(b.mode)?b.mode:'unknown';}
@@ -48,7 +48,8 @@ export default {async fetch(request,env){try{
  if(path==='/api/state'&&request.method==='GET'){
    if(!env.DB)throw fail('Database unavailable',503);
    const {results}=await env.DB.prepare('SELECT id,kind,payload,created_at FROM records ORDER BY created_at DESC LIMIT 300').all();
-   return json({records:results.map(r=>({...r,payload:JSON.parse(r.payload)})),execution:'disabled',research:RESEARCH});
+   const alertRows=await env.DB.prepare("SELECT id,kind,payload,created_at FROM records WHERE kind IN ('setup','crossover') ORDER BY created_at DESC LIMIT 300").all();
+   return json({records:results.map(r=>({...r,payload:JSON.parse(r.payload)})),alerts:alertRows.results.map(r=>({...r,payload:JSON.parse(r.payload)})),execution:'disabled',research:RESEARCH});
  }
  if(path==='/management-report'&&request.method==='GET')return new Response(MANAGEMENT,{headers:{'content-type':'text/plain; charset=utf-8'}});
  if(path==='/m15-report'&&request.method==='GET')return new Response(M15REPORT,{headers:{'content-type':'text/plain; charset=utf-8'}});

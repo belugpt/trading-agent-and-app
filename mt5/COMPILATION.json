@@ -4,22 +4,22 @@
       "program": "SMAStrat",
       "errors": 0,
       "warnings": 0,
-      "source_sha256": "cc2109b8b7316f6c5350fbb6811868a2992919d6b0b7e7aa0d5d61a4cfa3cd91",
-      "binary_sha256": "312f7b44e037d3fc1d0f006e21b3fe42170dce82c26ad7c4ec0eb2a648238f8d"
+      "source_sha256": "de015c9a5fbf2e8a1d09b74ebf1e238c1e757d841c8f27b76f343952c9a481bd",
+      "binary_sha256": "b0512f7eb0aae15494989676a822ef420171eed9d7d6fe48c2e270d328441fef"
     },
     {
       "program": "SME_Agent",
       "errors": 0,
       "warnings": 0,
-      "source_sha256": "629d6049b671cb891a314309cf89b2f93b73180db81e44bb086ddce65a8860fc",
-      "binary_sha256": "8657f4ba29321086cbeaaa6393577f79b3c10155f529c05acbd50e70aa9fbd6f"
+      "source_sha256": "eda387c4465dbc30128038934bb57c36cf4b0420dc45f25159f9bc699a7875aa",
+      "binary_sha256": "680210fdf96e84e39e0ea36c7ff9768363d05f8d8fc3a146b31fd4473d7d8919"
     },
     {
       "program": "SME_Monitor",
       "errors": 0,
       "warnings": 0,
-      "source_sha256": "fe6e9fad9650436baa45f5d9d0fd540b5dd9bcc9b690f0bdaad4a19f2dbd9ac0",
-      "binary_sha256": "2da32bd8ef3b43dfec417f9955241e05f6d3eb6656b727c6252a45a267841071"
+      "source_sha256": "cfc202b3ecffd1d1e80d0880a6bbe2cd37ee764bc5888bfad3230da983f104a0",
+      "binary_sha256": "9d9cb018d0f08eb0aa0a401f704487a177461979c13d579b803ccc78cf3b6b59"
     }
   ],
   "terminal_execution_verified": false,
